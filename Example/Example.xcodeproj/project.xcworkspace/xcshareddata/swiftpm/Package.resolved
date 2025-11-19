@@ -1,5 +1,5 @@
 {
-  "originHash" : "1ebcdd9ae48ded7603ab12c59a83ead8416601ba4fc8c2ecd82f83e5acf0c812",
+  "originHash" : "4b7815edec3d16ef9b9ad35e429ca2b096959658e36630ac8afa412da8c84990",
   "pins" : [
     {
       "identity" : "wwautolayoutconstraint",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "3efa698088862e5490b21ddea59250b54cf05d2f",
         "version" : "0.6.1"
+      }
+    },
+    {
+      "identity" : "wwfacelandmarkdetection",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/William-Weng/WWFaceLandmarkDetection",
+      "state" : {
+        "revision" : "9bb9bcfe4d2292ef7e00c0d1da155a793916b1f9",
+        "version" : "1.0.0"
       }
     }
   ],
