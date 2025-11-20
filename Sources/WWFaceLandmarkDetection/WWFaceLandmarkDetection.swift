@@ -103,8 +103,9 @@ public extension WWFaceLandmarkDetection {
     /// - Parameters:
     ///   - options: 用於描述影像的特定屬性
     ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - jointNames: 手指頭的部位
     ///   - result: Result<[[CGPoint]], Error>
-    func humanHandPosePoints(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: ((Result<[[CGPoint]], Error>) -> Void)? = nil) {
+    func humanHandPosePoints(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip], result: ((Result<[[CGPoint]], Error>) -> Void)? = nil) {
         
         guard let detectImageView = detectImageView else { result?(.failure(CustomError.unsetting)); return }
         
@@ -113,7 +114,7 @@ public extension WWFaceLandmarkDetection {
         boxLayers._removeFromSuperlayer()
         boxLayers = []
         
-        detectImageView._detectHumanHandPosePoints(options: options, maximumHandCount: maximumHandCount) { _result_ in
+        detectImageView._detectHumanHandPosePoints(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames) { _result_ in
             switch _result_ {
             case .failure(let error): result?(.failure(error))
             case .success(let pointsArray):
@@ -123,36 +124,37 @@ public extension WWFaceLandmarkDetection {
         }
     }
     
-    /// 手指頭數量
+    /// 手的數量
     /// - Parameters:
     ///   - options: 用於描述影像的特定屬性
     ///   - maximumHandCount: 辨識幾隻手的數量
     ///   - result: Result<Int, Error>
     func humanHandPosePointCount(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<Int, Error>) -> Void) {
         
-        humanHandPosePoints(options: options, maximumHandCount: maximumHandCount) { _result_ in
+        humanHandPosePoints(options: options, maximumHandCount: maximumHandCount, jointNames: []) { _result_ in
             switch _result_ {
             case .failure(let error): result(.failure(error))
             case .success(let pointsArray): result(.success(pointsArray.count))
             }
         }
     }
-    
+        
     /// 手指頭特徵點標示
     /// - Parameters:
     ///   - options: 用於描述影像的特定屬性
     ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - jointNames: 手指頭的部位
     ///   - lineWidth: 框線寬度
     ///   - lineColor: 框線顏色
     ///   - result: Result<[[CGPoint]], Error>)
-    func humanHandPosePointsBoxing(options: [VNImageOption : Any] = [:], lineWidth: CGFloat = 1.0, lineColor: UIColor = .green, maximumHandCount: Int = 2, result: ((Result<[[CGPoint]], Error>) -> Void)? = nil) {
+    func humanHandPosePointsBoxing(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip], lineWidth: CGFloat = 8.0, lineColor: UIColor = .green, result: ((Result<[[CGPoint]], Error>) -> Void)? = nil) {
         
         guard let overlayView = overlayView else { result?(.failure(CustomError.unsetting)); return }
         
         let this = self
         overlayView.layer.sublayers?._removeFromSuperlayer()
         
-        humanHandPosePoints(options: options, maximumHandCount: maximumHandCount) { _result_ in
+        humanHandPosePoints(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames) { _result_ in
             switch _result_ {
             case .failure(let error): result?(.failure(error))
             case .success(let pointsArray):
@@ -205,11 +207,24 @@ public extension WWFaceLandmarkDetection {
     /// - Parameters:
     ///   - options: 用於描述影像的特定屬性
     ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - jointNames: 手指頭的部位
     /// - Returns: Result<[[CGPoint]], Error>
-    func humanHandPosePoints(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2) async -> Result<[[CGPoint]], Error> {
+    func humanHandPosePoints(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip]) async -> Result<[[CGPoint]], Error> {
         
         await withCheckedContinuation { continuation in
-            humanHandPosePoints(options: options, maximumHandCount: maximumHandCount) { continuation.resume(returning: $0) }
+            humanHandPosePoints(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames) { continuation.resume(returning: $0) }
+        }
+    }
+    
+    /// 手的數量
+    /// - Parameters:
+    ///   - options: 用於描述影像的特定屬性
+    ///   - maximumHandCount: 辨識幾隻手的數量
+    /// - Returns: Result<Int, Error>
+    func humanHandPosePointCount(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2) async -> Result<Int, Error> {
+        
+        await withCheckedContinuation { continuation in
+            humanHandPosePointCount(options: options, maximumHandCount: maximumHandCount) { continuation.resume(returning: $0) }
         }
     }
     
@@ -217,13 +232,14 @@ public extension WWFaceLandmarkDetection {
     /// - Parameters:
     ///   - options: 用於描述影像的特定屬性
     ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - jointNames: 手指頭的部位
     ///   - lineWidth: 框線寬度
     ///   - lineColor: 框線顏色
     /// - Returns: Result<[[CGPoint]], Error>
-    func humanHandPosePointsBoxing(options: [VNImageOption : Any] = [:], lineWidth: CGFloat = 1.0, lineColor: UIColor = .green, maximumHandCount: Int = 2) async -> Result<[[CGPoint]], Error> {
+    func humanHandPosePointsBoxing(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip], lineWidth: CGFloat = 1.0, lineColor: UIColor = .green) async -> Result<[[CGPoint]], Error> {
         
         await withCheckedContinuation { continuation in
-            humanHandPosePoints(options: options, maximumHandCount: maximumHandCount) { continuation.resume(returning: $0) }
+            humanHandPosePointsBoxing(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames, lineWidth: lineWidth, lineColor: lineColor) { continuation.resume(returning: $0) }
         }
     }
 }

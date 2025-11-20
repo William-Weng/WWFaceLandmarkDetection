@@ -10,7 +10,7 @@
 ### [Installation with Swift Package Manager](https://medium.com/彼得潘的-swift-ios-app-開發問題解答集/使用-spm-安裝第三方套件-xcode-11-新功能-2c4ffcf85b4b)
 ```bash
 dependencies: [
-    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.1.3"))
+    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.1.4"))
 ]
 ```
 
@@ -29,12 +29,12 @@ dependencies: [
 |faceLandmarkCount()|人臉數量|
 |faceLandmarksBoxing(landmarkTypes:isDisplayBox:lineWidth:lineColor:result:)|人臉特徵點標示|
 |faceLandmarksBoxing(landmarkTypes:isDisplayBox:lineWidth:lineColor:)|人臉特徵點標示|
-|humanHandPosePoints(options:maximumHandCount:result:)|手指頭特徵點|
-|humanHandPosePoints(options:maximumHandCount:)|手指頭特徵點|
-|humanHandPosePointCount(options:maximumHandCount:result:)|手指頭數量|
-|humanHandPosePointCount(options:maximumHandCount:)|手指頭數量|
-|humanHandPosePointsBoxing(options:lineWidth:lineColor:maximumHandCount:result:)|手指頭特徵點標示|
-|humanHandPosePointsBoxing(options:lineWidth:lineColor:maximumHandCount:)|手指頭特徵點標示|
+|humanHandPosePoints(options:maximumHandCount:jointNames:result:)|手指頭特徵點|
+|humanHandPosePoints(options:maximumHandCount:jointNames:)|手指頭特徵點|
+|humanHandPosePointCount(options:maximumHandCount:result:)|手的數量|
+|humanHandPosePointCount(options:maximumHandCount:)|手的數量|
+|humanHandPosePointsBoxing(options:maximumHandCount:jointNames:lineWidth:lineColor:result:)|手指頭特徵點標示|
+|humanHandPosePointsBoxing(options:maximumHandCount:jointNames:lineWidth:lineColor:)|手指頭特徵點標示|
 
 ### Example
 ```swift

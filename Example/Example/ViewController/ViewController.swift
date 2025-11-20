@@ -19,6 +19,7 @@ final class ViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        WWFaceLandmarkDetection.shared.faceLandmarksBoxing(landmarkTypes: [.allPoints])
+        WWFaceLandmarkDetection.shared.humanHandPosePointsBoxing()
+        WWFaceLandmarkDetection.shared.humanHandPosePointCount { print($0) }
     }
 }

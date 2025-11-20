@@ -252,8 +252,9 @@ private extension UIImage {
     ///   - frame: [CGRect](https://www.appcoda.com.tw/ios-14-vision-framework-tinder-app/)
     ///   - options: [[VNImageOption : Any]](https://xie.infoq.cn/article/67c8cbee361ca22d54cc88412)
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
+    ///   - jointNames: [辨識哪些部位](https://www.appcoda.com.tw/ios-14-vision-framework-tinder-app/)
     ///   - result: [Result<[[CGPoint]]?, Error>](https://shtnkgm.com/blog/2020-09-02-hand.html)
-    func _detectHumanHandPosePoints(mirrorTo frame: CGRect, options: [VNImageOption : Any], maximumHandCount: Int, result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
+    func _detectHumanHandPosePoints(mirrorTo frame: CGRect, options: [VNImageOption : Any], maximumHandCount: Int, jointNames: [VNHumanHandPoseObservation.JointName], result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
         
         _detectHumanHandPoseResult(options: options, maximumHandCount: maximumHandCount) { detectResult in
             
@@ -267,7 +268,7 @@ private extension UIImage {
                 
                 detectResults.forEach { detectResult in
                     
-                    let boxesResult = detectResult._fingerPointBoxes()
+                    let boxesResult = detectResult._fingerPointBoxes(jointNames: jointNames)
                     
                     switch boxesResult {
                     case .failure(let error): result(.failure(error))
@@ -313,8 +314,9 @@ extension UIImageView {
     /// - Parameters:
     ///   - options: [[VNImageOption : Any]](https://xie.infoq.cn/article/67c8cbee361ca22d54cc88412)
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
+    ///   - jointNames: 辨識哪些部位
     ///   - result: [Result<[[CGPoint]]?, Error>](https://shtnkgm.com/blog/2020-09-02-hand.html)
-    func _detectHumanHandPosePoints(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
+    func _detectHumanHandPosePoints(options: [VNImageOption : Any], maximumHandCount: Int, jointNames: [VNHumanHandPoseObservation.JointName], result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
         
         guard let innerImage = self.image,
               let innerFrame = self._innerImageFrame()
@@ -322,7 +324,7 @@ extension UIImageView {
             result(.failure(WWFaceLandmarkDetection.CustomError.notImage)); return
         }
         
-        innerImage._detectHumanHandPosePoints(mirrorTo: innerFrame, options: options, maximumHandCount: maximumHandCount) { detectResult in
+        innerImage._detectHumanHandPosePoints(mirrorTo: innerFrame, options: options, maximumHandCount: maximumHandCount, jointNames: jointNames) { detectResult in
             Task { @MainActor in
                 switch detectResult {
                 case .failure(let error): result(.failure(error))
@@ -460,7 +462,7 @@ private extension VNHumanHandPoseObservation {
     ///   - confidence: [辨識度 / 正確率： 0.0 ~ 1.0](http://events.jianshu.io/p/eb25687de917)
     ///   - jointNames: [辨識哪些部位](https://www.appcoda.com.tw/ios-14-vision-framework-tinder-app/)
     /// - Returns: [Result<Int, Error>](https://developer.apple.com/documentation/vision/vnhumanhandposeobservation)
-    func _fingerPointBoxes(moreThan confidence: VNConfidence = 0.9, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip]) -> Result<[VNRecognizedPoint], Error> {
+    func _fingerPointBoxes(moreThan confidence: VNConfidence = 0.9, jointNames: [VNHumanHandPoseObservation.JointName]) -> Result<[VNRecognizedPoint], Error> {
         
         do {
             let allPoints = try self.recognizedPoints(.all)
