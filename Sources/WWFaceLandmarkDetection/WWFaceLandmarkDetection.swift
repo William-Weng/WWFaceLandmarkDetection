@@ -12,9 +12,10 @@ import WWAutolayoutConstraint
 // MARK: - 人臉特徵點偵測
 open class WWFaceLandmarkDetection {
     
+    public private(set) var overlayView: UIView?
+    
     private var detectImageView: UIImageView?
     private var boxLayers: [CALayer] = []
-    private(set) var overlayView: UIView?
     
     public static let shared = WWFaceLandmarkDetection()
 }
@@ -56,6 +57,19 @@ public extension WWFaceLandmarkDetection {
         }
     }
     
+    /// 人臉數量
+    /// - Parameters:
+    ///   - result: (Result<Int, Error>)
+    func faceLandmarkCount(result: @escaping (Result<Int, Error>) -> Void) {
+        
+        faceLandmarks(landmarkTypes: []) { _result_ in
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let faceRegions): result(.success(faceRegions.count))
+            }
+        }
+    }
+        
     /// 人臉特徵點標示
     /// - Parameters:
     ///   - landmarkTypes: 要標示的類型
@@ -108,7 +122,22 @@ public extension WWFaceLandmarkDetection {
             }
         }
     }
+    
+    /// 手指頭數量
+    /// - Parameters:
+    ///   - options: 用於描述影像的特定屬性
+    ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - result: Result<Int, Error>
+    func humanHandPosePointCount(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<Int, Error>) -> Void) {
         
+        humanHandPosePoints(options: options, maximumHandCount: maximumHandCount) { _result_ in
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let pointsArray): result(.success(pointsArray.count))
+            }
+        }
+    }
+    
     /// 手指頭特徵點標示
     /// - Parameters:
     ///   - options: 用於描述影像的特定屬性
@@ -146,6 +175,15 @@ public extension WWFaceLandmarkDetection {
         
         await withCheckedContinuation { continuation in
             faceLandmarks(landmarkTypes: landmarkTypes) { continuation.resume(returning: $0) }
+        }
+    }
+    
+    /// 人臉數量
+    /// - Returns: Result<Int, Error>
+    func faceLandmarkCount() async -> Result<Int, Error> {
+        
+        await withCheckedContinuation { continuation in
+            faceLandmarkCount() { continuation.resume(returning: $0) }
         }
     }
     
