@@ -22,6 +22,7 @@ public extension WWFaceLandmarkDetection {
         case unsetting
         case notImage
         case isEmpty
+        case isNull
     }
     
     /// [臉上的特徵點部位範圍](https://developer.apple.com/documentation/vision/vnfacelandmarks2d)

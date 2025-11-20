@@ -5,12 +5,12 @@
 - [Facial landmark detection using the official Vision framework.](https://www.pexels.com/zh-tw/photo/3204088/)
 - [使用官方Vision架構人臉特徵點偵測](https://steam.oxxostudio.tw/category/python/ai/ai-mediapipe-2023-face-landmark-detection.html)
 
-![](Example.PNG)
+![](Example.png)
 
 ### [Installation with Swift Package Manager](https://medium.com/彼得潘的-swift-ios-app-開發問題解答集/使用-spm-安裝第三方套件-xcode-11-新功能-2c4ffcf85b4b)
 ```bash
 dependencies: [
-    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.0.0"))
+    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.1.0"))
 ]
 ```
 
@@ -19,7 +19,13 @@ dependencies: [
 |-|-|
 |setting(detectImageView:)|參數設定|
 |faceLandmarks(landmarkTypes:result:)|人臉特徵點資訊|
+|faceLandmarks(landmarkTypes:)|人臉特徵點資訊|
 |faceLandmarksBoxing(landmarkTypes:isDisplayBox:lineWidth:lineColor:result:)|人臉特徵點標示|
+|faceLandmarksBoxing(landmarkTypes:isDisplayBox:lineWidth:lineColor:)|人臉特徵點標示|
+|humanHandPosePoints(options:maximumHandCount:result:)|手指頭特徵點|
+|humanHandPosePoints(options:maximumHandCount:)|手指頭特徵點|
+|humanHandPosePointsBoxing(options:lineWidth:lineColor:maximumHandCount:result:)|手指頭特徵點標示|
+|humanHandPosePointsBoxing(options:lineWidth:lineColor:maximumHandCount:)|手指頭特徵點標示|
 
 ### Example
 ```swift
