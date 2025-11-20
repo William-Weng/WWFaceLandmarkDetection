@@ -23,6 +23,5 @@ final class ViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         WWFaceLandmarkDetection.shared.faceLandmarksBoxing(landmarkTypes: [.allPoints])
-        WWFaceLandmarkDetection.shared.faceLandmarkCount() { result in print(result) }
     }
 }
