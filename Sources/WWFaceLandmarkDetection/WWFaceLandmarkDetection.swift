@@ -46,7 +46,7 @@ public extension WWFaceLandmarkDetection {
         boxLayers._removeFromSuperlayer()
         boxLayers = []
         
-        detectImageView._detectFaceLandmarksBox(dispatchQueue: .global(qos: .default), landmarkTypes: landmarkTypes) { _result_ in
+        detectImageView._detectFaceLandmarksBox(landmarkTypes: landmarkTypes) { _result_ in
             
             switch _result_ {
             case .failure(let error): result(.failure(error))
@@ -113,7 +113,7 @@ public extension WWFaceLandmarkDetection {
         boxLayers._removeFromSuperlayer()
         boxLayers = []
         
-        detectImageView._detectHumanHandPosePoints(dispatchQueue: .global(qos: .default), options: options, maximumHandCount: maximumHandCount) { _result_ in
+        detectImageView._detectHumanHandPosePoints(options: options, maximumHandCount: maximumHandCount) { _result_ in
             switch _result_ {
             case .failure(let error): result?(.failure(error))
             case .success(let pointsArray):
@@ -256,7 +256,7 @@ private extension WWFaceLandmarkDetection {
                     let frame = CGRect(origin: point, size: CGSize(width: lineWidth, height: lineWidth))
                     let layer = CALayer()._frame(frame)._borderColor(lineColor)._borderWidth(lineWidth)
                     
-                    Task { @MainActor in overlayView.layer.addSublayer(layer) }
+                    overlayView.layer.addSublayer(layer)
                 }
             }
         }
@@ -269,6 +269,6 @@ private extension WWFaceLandmarkDetection {
         let frame = CGRect(origin: .zero, size: CGSize(width: lineWidth, height: lineWidth))
         let layer = CALayer()._frame(frame)._borderColor(lineColor)._borderWidth(lineWidth)._center(center)
         
-        Task { @MainActor in overlayView.layer.addSublayer(layer) }
+        overlayView.layer.addSublayer(layer)
     }
 }

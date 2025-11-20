@@ -127,25 +127,23 @@ private extension UIImage {
     
     /// [人臉關鍵點提取的結果](https://medium.com/msapps-development/face-recognition-ios-fadfecb99b15)
     /// - Parameters:
-    ///   - dispatchQueue: DispatchQueue
     ///   - options: [VNImageOption : Any]
     ///   - result: Result<VNRequest, Error>
-    func _detectFaceLandmarksResult(dispatchQueue: DispatchQueue = .global(qos: .userInitiated), options: [VNImageOption : Any] = [:], result: @escaping (Result<[VNFaceObservation]?, Error>) -> ()) {
+    func _detectFaceLandmarksResult(options: [VNImageOption : Any] = [:], result: @escaping (Result<[VNFaceObservation]?, Error>) -> ()) {
         _detectResults(for: VNDetectFaceLandmarksRequest.self, result: result)
     }
     
     /// [取得識別人臉的結果 => 使用泛型選擇](https://www.jianshu.com/p/83aa3983ac76)
     /// - Parameters:
-    ///   - type: T: VNImageBasedRequest
-    ///   - dispatchQueue: DispatchQueue
+    ///   - type: [T: VNImageBasedRequest](https://qiita.com/john-rocky/items/29c2cf791051c7205302)
     ///   - options: [VNImageOption : Any]
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
     ///   - result: Result<[VNFaceObservation]?, Error>
-    func _detectResults<T: VNImageBasedRequest, U: VNObservation>(for type: T.Type, dispatchQueue: DispatchQueue = .global(qos: .userInitiated), options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[U]?, Error>) -> ()) {
+    func _detectResults<T: VNImageBasedRequest, U: VNObservation>(for type: T.Type, options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[U]?, Error>) -> ()) {
         
         if (T.self == VNDetectFaceRectanglesRequest.self) {
             
-            _detectFaceRectanglesRequest(dispatchQueue: dispatchQueue, options: options) { detectResult in
+            _detectFaceRectanglesRequest(options: options) { detectResult in
                 switch detectResult {
                 case .failure(let error): return result(.failure(error))
                 case .success(let request):
@@ -157,7 +155,7 @@ private extension UIImage {
         
         if (T.self == VNDetectFaceLandmarksRequest.self) {
             
-            _detectFaceLandmarksRequest(dispatchQueue: dispatchQueue, options: options) { detectResult in
+            _detectFaceLandmarksRequest(options: options) { detectResult in
                 switch detectResult {
                 case .failure(let error): return result(.failure(error))
                 case .success(let request):
@@ -169,7 +167,7 @@ private extension UIImage {
         
         if (T.self == VNDetectHumanHandPoseRequest.self) {
             
-            _detectHumanHandPoseRequest(dispatchQueue: dispatchQueue, options: options, maximumHandCount: maximumHandCount) { detectResult in
+            _detectHumanHandPoseRequest(options: options, maximumHandCount: maximumHandCount) { detectResult in
                 switch detectResult {
                 case .failure(let error): return result(.failure(error))
                 case .success(let request):
@@ -186,50 +184,45 @@ private extension UIImage {
     
     /// [人臉辨識](https://medium.com/@zhgchgli/vision-初探-app-頭像上傳-自動識別人臉裁圖-swift-9a9aa892f9a9)
     /// - Parameters:
-    ///   - dispatchQueue: [DispatchQueue](https://juejin.cn/post/6844903504469819399)
-    ///   - options: [VNImageOption : Any]
+    ///   - options: [[VNImageOption : Any]](https://juejin.cn/post/6844903504469819399)
     ///   - result: Result<VNRequest, Error>
-    func _detectFaceRectanglesRequest(dispatchQueue: DispatchQueue = .global(qos: .userInitiated), options: [VNImageOption : Any] = [:], result: @escaping (Result<VNDetectFaceRectanglesRequest, Error>) -> ()) {
-        _detectRequest(for: VNDetectFaceRectanglesRequest.self, dispatchQueue: dispatchQueue, options: options, maximumHandCount: 2, result: result)
+    func _detectFaceRectanglesRequest(options: [VNImageOption : Any] = [:], result: @escaping (Result<VNDetectFaceRectanglesRequest, Error>) -> ()) {
+        _detectRequest(for: VNDetectFaceRectanglesRequest.self, options: options, maximumHandCount: 2, result: result)
     }
     
     /// [人臉關鍵點提取](https://www.jianshu.com/p/59b43dbe4fbd)
     /// - Parameters:
-    ///   - dispatchQueue: DispatchQueue
     ///   - options: [VNImageOption : Any]
     ///   - result: Result<VNRequest, Error>
-    func _detectFaceLandmarksRequest(dispatchQueue: DispatchQueue = .global(qos: .userInitiated), options: [VNImageOption : Any] = [:], result: @escaping (Result<VNDetectFaceLandmarksRequest, Error>) -> ()) {
-        _detectRequest(for: VNDetectFaceLandmarksRequest.self, dispatchQueue: dispatchQueue, options: options, maximumHandCount: 2, result: result)
+    func _detectFaceLandmarksRequest(options: [VNImageOption : Any] = [:], result: @escaping (Result<VNDetectFaceLandmarksRequest, Error>) -> ()) {
+        _detectRequest(for: VNDetectFaceLandmarksRequest.self, options: options, maximumHandCount: 2, result: result)
     }
 
     /// [手指關鍵點提取](https://www.appcoda.com.tw/ios-14-vision-framework-tinder-app/)
     /// - Parameters:
-    ///   - dispatchQueue: [DispatchQueue](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
-    ///   - options: [VNImageOption : Any]
+    ///   - options: [[VNImageOption : Any]](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
     ///   - result: Result<VNRequest, Error>
-    func _detectHumanHandPoseRequest(dispatchQueue: DispatchQueue = .global(qos: .userInitiated), options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<VNDetectHumanHandPoseRequest, Error>) -> ()) {
-        _detectRequest(for: VNDetectHumanHandPoseRequest.self, dispatchQueue: dispatchQueue, options: options, maximumHandCount: maximumHandCount, result: result)
+    func _detectHumanHandPoseRequest(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<VNDetectHumanHandPoseRequest, Error>) -> ()) {
+        _detectRequest(for: VNDetectHumanHandPoseRequest.self, options: options, maximumHandCount: maximumHandCount, result: result)
     }
     
     /// [手指關鍵點取得的結果](https://www.jianshu.com/p/9c4f91e99343)
     /// - Parameters:
-    ///   - dispatchQueue: [DispatchQueue](http://events.jianshu.io/p/eb25687de917)
-    ///   - options: [VNImageOption : Any]
+    ///   - options: [[VNImageOption : Any]](http://events.jianshu.io/p/eb25687de917)
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
     ///   - result: Result<[VNHumanHandPoseObservation]?, Error>
-    func _detectHumanHandPoseResult(dispatchQueue: DispatchQueue = .global(qos: .userInitiated), options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[VNHumanHandPoseObservation]?, Error>) -> ()) {
+    func _detectHumanHandPoseResult(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[VNHumanHandPoseObservation]?, Error>) -> ()) {
         _detectResults(for: VNDetectHumanHandPoseRequest.self, maximumHandCount: maximumHandCount, result: result)
     }
     
     /// [取得人臉辨識的結果 => 使用泛型選擇](https://medium.com/@zhgchgli/vision-初探-app-頭像上傳-自動識別人臉裁圖-swift-9a9aa892f9a9)
     /// - Parameters:
     ///   - type: T: VNImageBasedRequest
-    ///   - dispatchQueue: [DispatchQueue](https://juejin.cn/post/6844903504469819399)
     ///   - options: [[VNImageOption : Any]](https://www.jianshu.com/p/59b43dbe4fbd)
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
-    ///   - result: Result<VNRequest, Error>
-    func _detectRequest<T: VNImageBasedRequest>(for type: T.Type, dispatchQueue: DispatchQueue, options: [VNImageOption : Any], maximumHandCount: Int, result: @escaping (Result<T, Error>) -> ()) {
+    ///   - result: [Result<VNRequest, Error>](https://juejin.cn/post/6844903504469819399)
+    func _detectRequest<T: VNImageBasedRequest>(for type: T.Type, options: [VNImageOption : Any], maximumHandCount: Int, result: @escaping (Result<T, Error>) -> ()) {
         
         guard let ciImage = _ciImage(options: nil) else { result(.failure(WWFaceLandmarkDetection.CustomError.notImage)); return }
         
@@ -239,7 +232,7 @@ private extension UIImage {
             result(.success(request as! T))
         }
         
-        dispatchQueue.async {
+        Task {
             
             if let _faceRequest = faceRequest as? VNDetectHumanHandPoseRequest {
                 _faceRequest.maximumHandCount = maximumHandCount
@@ -257,13 +250,12 @@ private extension UIImage {
     /// [辨識圖片上各手指頭的位置 / 中點 => 滿版](https://www.jianshu.com/p/59b43dbe4fbd)
     /// - Parameters:
     ///   - frame: [CGRect](https://www.appcoda.com.tw/ios-14-vision-framework-tinder-app/)
-    ///   - dispatchQueue: [DispatchQueue](https://qiita.com/john-rocky/items/29c2cf791051c7205302)
     ///   - options: [[VNImageOption : Any]](https://xie.infoq.cn/article/67c8cbee361ca22d54cc88412)
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
     ///   - result: [Result<[[CGPoint]]?, Error>](https://shtnkgm.com/blog/2020-09-02-hand.html)
-    func _detectHumanHandPosePoints(mirrorTo frame: CGRect, dispatchQueue: DispatchQueue, options: [VNImageOption : Any], maximumHandCount: Int, result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
+    func _detectHumanHandPosePoints(mirrorTo frame: CGRect, options: [VNImageOption : Any], maximumHandCount: Int, result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
         
-        _detectHumanHandPoseResult(dispatchQueue: dispatchQueue, options: options, maximumHandCount: maximumHandCount) { detectResult in
+        _detectHumanHandPoseResult(options: options, maximumHandCount: maximumHandCount) { detectResult in
             
             switch detectResult {
             case .failure(let error): result(.failure(error))
@@ -296,23 +288,20 @@ extension UIImageView {
     
     /// [辨識圖片上人臉特徵點的位置](https://www.jianshu.com/p/83aa3983ac76)
     /// - Parameters:
-    ///   - dispatchQueue: DispatchQueue
     ///   - landmarkTypes: [Constant.FaceLandmarkRegion]
     ///   - options: [VNImageOption : Any]
     ///   - result: Result<[Constant.FeaturePoints]?, Error>
-    func _detectFaceLandmarksBox(dispatchQueue: DispatchQueue, landmarkTypes: [WWFaceLandmarkDetection.FaceLandmarkRegion], options: [VNImageOption : Any] = [:], result: @escaping (Result<[WWFaceLandmarkDetection.FeaturePoints]?, Error>) -> ()) {
+    func _detectFaceLandmarksBox(landmarkTypes: [WWFaceLandmarkDetection.FaceLandmarkRegion], options: [VNImageOption : Any] = [:], result: @escaping (Result<[WWFaceLandmarkDetection.FeaturePoints]?, Error>) -> ()) {
         
         guard let innerImage = image else { result(.failure(WWFaceLandmarkDetection.CustomError.notImage)); return }
         
-        innerImage._detectFaceLandmarksResult(dispatchQueue: dispatchQueue, options: options) { detectResult in
+        innerImage._detectFaceLandmarksResult(options: options) { detectResult in
             
-            switch detectResult {
-            case .failure(let error): result(.failure(error))
-            case .success(let detectResults):
-                
-                guard let detectResults = detectResults else { return result(.success(nil)) }
-                
-                DispatchQueue.main.async {
+            Task { @MainActor in
+                switch detectResult {
+                case .failure(let error): result(.failure(error))
+                case .success(let detectResults):
+                    guard let detectResults = detectResults else { return result(.success(nil)) }
                     let featurePoints = detectResults.compactMap { $0._featurePoints(mirrorTo: self, landmarkTypes: landmarkTypes) }
                     result(.success(featurePoints))
                 }
@@ -322,11 +311,10 @@ extension UIImageView {
     
     /// [辨識圖片上各手指頭的位置 / 中點 => 滿版](https://www.jianshu.com/p/59b43dbe4fbd)
     /// - Parameters:
-    ///   - dispatchQueue: [DispatchQueue](https://qiita.com/john-rocky/items/29c2cf791051c7205302)
     ///   - options: [[VNImageOption : Any]](https://xie.infoq.cn/article/67c8cbee361ca22d54cc88412)
     ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
     ///   - result: [Result<[[CGPoint]]?, Error>](https://shtnkgm.com/blog/2020-09-02-hand.html)
-    func _detectHumanHandPosePoints(dispatchQueue: DispatchQueue, options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
+    func _detectHumanHandPosePoints(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[[CGPoint]]?, Error>) -> ()) {
         
         guard let innerImage = self.image,
               let innerFrame = self._innerImageFrame()
@@ -334,10 +322,12 @@ extension UIImageView {
             result(.failure(WWFaceLandmarkDetection.CustomError.notImage)); return
         }
         
-        innerImage._detectHumanHandPosePoints(mirrorTo: innerFrame, dispatchQueue: dispatchQueue, options: options, maximumHandCount: maximumHandCount) { detectResult in
-            switch detectResult {
-            case .failure(let error): result(.failure(error))
-            case .success(let pointsArray): result(.success(pointsArray))
+        innerImage._detectHumanHandPosePoints(mirrorTo: innerFrame, options: options, maximumHandCount: maximumHandCount) { detectResult in
+            Task { @MainActor in
+                switch detectResult {
+                case .failure(let error): result(.failure(error))
+                case .success(let pointsArray): result(.success(pointsArray))
+                }
             }
         }
     }
