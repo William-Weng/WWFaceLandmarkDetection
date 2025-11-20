@@ -16,7 +16,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pexels-harrisonhaines-3204088" translatesAutoresizingMaskIntoConstraints="NO" id="Iy5-mS-gZs">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pexels-harrisonhaines-3204088" translatesAutoresizingMaskIntoConstraints="NO" id="Iy5-mS-gZs">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
@@ -24,10 +24,10 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="Iy5-mS-gZs" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="1F8-UX-oNG"/>
-                            <constraint firstItem="Iy5-mS-gZs" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="6dP-ja-rFY"/>
-                            <constraint firstItem="Iy5-mS-gZs" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="PmL-RJ-OzH"/>
-                            <constraint firstAttribute="bottom" secondItem="Iy5-mS-gZs" secondAttribute="bottom" id="R8S-Oc-i0G"/>
+                            <constraint firstAttribute="bottom" secondItem="Iy5-mS-gZs" secondAttribute="bottom" id="7Sl-nh-8jm"/>
+                            <constraint firstAttribute="trailing" secondItem="Iy5-mS-gZs" secondAttribute="trailing" id="GWm-RA-i2p"/>
+                            <constraint firstItem="Iy5-mS-gZs" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="eOM-Bj-TLQ"/>
+                            <constraint firstItem="Iy5-mS-gZs" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="nUN-82-GBj"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Ga3-dT-hLV"/>
@@ -37,7 +37,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1082.4000000000001" y="4.4334975369458132"/>
+            <point key="canvasLocation" x="1081.7733990147783" y="4"/>
         </scene>
     </scenes>
     <resources>
