@@ -12,12 +12,12 @@ import WWAutolayoutConstraint
 // MARK: - 人臉特徵點偵測
 open class WWFaceLandmarkDetection {
     
+    public static let shared = WWFaceLandmarkDetection()
+    
     public private(set) var overlayView: UIView?
     
     private var detectImageView: UIImageView?
     private var boxLayers: [CALayer] = []
-    
-    public static let shared = WWFaceLandmarkDetection()
 }
 
 // MARK: - 公開函式 (設定)
