@@ -381,7 +381,7 @@
 			repositoryURL = "https://github.com/William-Weng/WWFaceLandmarkDetection";
 			requirement = {
 				kind = upToNextMinorVersion;
-				minimumVersion = 1.1.1;
+				minimumVersion = 1.1.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

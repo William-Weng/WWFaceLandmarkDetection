@@ -12,9 +12,6 @@ final class ViewController: UIViewController {
     
     @IBOutlet weak var detectImageView: UIImageView!
     
-    private var overlayView: UIView = .init()
-    private var boxLayers: [CALayer] = []
-
     override func viewDidLoad() {
         super.viewDidLoad()
         WWFaceLandmarkDetection.shared.setting(detectImageView: detectImageView)
