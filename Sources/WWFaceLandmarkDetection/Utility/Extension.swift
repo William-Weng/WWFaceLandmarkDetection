@@ -123,16 +123,29 @@ private extension UIImage {
 }
 
 // MARK: - UIImage (for Vision)
-private extension UIImage {
+extension UIImage {
     
     /// [人臉關鍵點提取的結果](https://medium.com/msapps-development/face-recognition-ios-fadfecb99b15)
     /// - Parameters:
     ///   - options: [VNImageOption : Any]
     ///   - result: Result<VNRequest, Error>
-    func _detectFaceLandmarksResult(options: [VNImageOption : Any] = [:], result: @escaping (Result<[VNFaceObservation]?, Error>) -> ()) {
+    func _detectFaceLandmarksResult(options: [VNImageOption : Any], result: @escaping (Result<[VNFaceObservation]?, Error>) -> ()) {
         _detectResults(for: VNDetectFaceLandmarksRequest.self, result: result)
     }
     
+    /// [手指關鍵點取得的結果](https://www.jianshu.com/p/9c4f91e99343)
+    /// - Parameters:
+    ///   - options: [[VNImageOption : Any]](http://events.jianshu.io/p/eb25687de917)
+    ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
+    ///   - result: Result<[VNHumanHandPoseObservation]?, Error>
+    func _detectHumanHandPoseResult(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[VNHumanHandPoseObservation]?, Error>) -> ()) {
+        _detectResults(for: VNDetectHumanHandPoseRequest.self, maximumHandCount: maximumHandCount, result: result)
+    }
+}
+
+// MARK: - UIImage (for Vision)
+private extension UIImage {
+        
     /// [取得識別人臉的結果 => 使用泛型選擇](https://www.jianshu.com/p/83aa3983ac76)
     /// - Parameters:
     ///   - type: [T: VNImageBasedRequest](https://qiita.com/john-rocky/items/29c2cf791051c7205302)
@@ -206,16 +219,7 @@ private extension UIImage {
     func _detectHumanHandPoseRequest(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<VNDetectHumanHandPoseRequest, Error>) -> ()) {
         _detectRequest(for: VNDetectHumanHandPoseRequest.self, options: options, maximumHandCount: maximumHandCount, result: result)
     }
-    
-    /// [手指關鍵點取得的結果](https://www.jianshu.com/p/9c4f91e99343)
-    /// - Parameters:
-    ///   - options: [[VNImageOption : Any]](http://events.jianshu.io/p/eb25687de917)
-    ///   - maximumHandCount: [辨識幾隻手的數量 => VNDetectHumanHandPoseRequest](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
-    ///   - result: Result<[VNHumanHandPoseObservation]?, Error>
-    func _detectHumanHandPoseResult(options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping (Result<[VNHumanHandPoseObservation]?, Error>) -> ()) {
-        _detectResults(for: VNDetectHumanHandPoseRequest.self, maximumHandCount: maximumHandCount, result: result)
-    }
-    
+        
     /// [取得人臉辨識的結果 => 使用泛型選擇](https://medium.com/@zhgchgli/vision-初探-app-頭像上傳-自動識別人臉裁圖-swift-9a9aa892f9a9)
     /// - Parameters:
     ///   - type: T: VNImageBasedRequest

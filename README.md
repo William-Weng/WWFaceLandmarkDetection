@@ -10,31 +10,36 @@
 ### [Installation with Swift Package Manager](https://medium.com/彼得潘的-swift-ios-app-開發問題解答集/使用-spm-安裝第三方套件-xcode-11-新功能-2c4ffcf85b4b)
 ```bash
 dependencies: [
-    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.1.4"))
+    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.1.5"))
 ]
 ```
 
 ### 可用參數 (Paramter)
 |參數|功能|
 |-|-|
-|overlayView|繪製特徵點的UIView|
+|overlayView|取得繪製特徵點的UIView|
 
 ### 可用函式 (Function)
 |函式|功能|
 |-|-|
 |setting(detectImageView:)|參數設定|
+|clearOverlayView()|清除標示框|
+|originalFaceLandmarks(image:options:result:)|人臉特徵點原始分析值|
+|originalFaceLandmarks(image:options:)|人臉特徵點原始分析值 (非同步)|
+|originalHumanHandPosePoints(image:options:maximumHandCount:result:)|手指頭特徵點原始分析值|
+|originalHumanHandPosePoints(image:options:maximumHandCount:)|手指頭特徵點原始分析值 (非同步)|
 |faceLandmarks(landmarkTypes:result:)|人臉特徵點資訊|
-|faceLandmarks(landmarkTypes:)|人臉特徵點資訊|
+|faceLandmarks(landmarkTypes:)|人臉特徵點資訊 (非同步)|
 |faceLandmarkCount(result:)|人臉數量|
-|faceLandmarkCount()|人臉數量|
+|faceLandmarkCount()|人臉數量 (非同步)|
 |faceLandmarksBoxing(landmarkTypes:isDisplayBox:lineWidth:lineColor:result:)|人臉特徵點標示|
-|faceLandmarksBoxing(landmarkTypes:isDisplayBox:lineWidth:lineColor:)|人臉特徵點標示|
+|faceLandmarksBoxing(landmarkTypes:isDisplayBox:lineWidth:lineColor:)|人臉特徵點標示 (非同步)|
 |humanHandPosePoints(options:maximumHandCount:jointNames:result:)|手指頭特徵點|
-|humanHandPosePoints(options:maximumHandCount:jointNames:)|手指頭特徵點|
+|humanHandPosePoints(options:maximumHandCount:jointNames:)|手指頭特徵點 (非同步)|
 |humanHandPosePointCount(options:maximumHandCount:result:)|手的數量|
-|humanHandPosePointCount(options:maximumHandCount:)|手的數量|
+|humanHandPosePointCount(options:maximumHandCount:)|手的數量 (非同步)|
 |humanHandPosePointsBoxing(options:maximumHandCount:jointNames:lineWidth:lineColor:result:)|手指頭特徵點標示|
-|humanHandPosePointsBoxing(options:maximumHandCount:jointNames:lineWidth:lineColor:)|手指頭特徵點標示|
+|humanHandPosePointsBoxing(options:maximumHandCount:jointNames:lineWidth:lineColor:)|手指頭特徵點標示 (非同步)|
 
 ### Example
 ```swift

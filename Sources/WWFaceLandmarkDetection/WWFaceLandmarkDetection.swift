@@ -30,6 +30,54 @@ public extension WWFaceLandmarkDetection {
         overlayView = .init()
         overlayView!.autolayout.cover(on: detectImageView)
     }
+    
+    /// 清除標示框
+    func clearOverlayView() {
+        boxLayers._removeFromSuperlayer()
+        boxLayers = .init()
+        overlayView?.layer.sublayers?._removeFromSuperlayer()
+    }
+}
+
+// MARK: - 公開函式 (原始分析值)
+public extension WWFaceLandmarkDetection {
+    
+    /// 人臉特徵點原始分析值
+    /// - Parameters:
+    ///   - image: UIImage
+    ///   - options: [VNImageOption : Any]
+    ///   - result: Result<[VNFaceObservation], Error>
+    func originalFaceLandmarks(image: UIImage, options: [VNImageOption : Any] = [:], result: @escaping (Result<[VNFaceObservation], Error>) -> Void) {
+        
+        image._detectFaceLandmarksResult(options: options) { _result_ in
+            
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let faceObservations):
+                guard let faceObservations = faceObservations else { result(.failure(CustomError.isNull)); return }
+                result(.success(faceObservations))
+            }
+        }
+    }
+    
+    /// 手指頭特徵點原始分析值
+    /// - Parameters:
+    ///   - image: 待測圖片
+    ///   - options: 用於描述影像的特定屬性
+    ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - result: Result<[VNHumanHandPoseObservation], Error>
+    func originalHumanHandPosePoints(image: UIImage, options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2, result: @escaping ((Result<[VNHumanHandPoseObservation], Error>) -> Void)) {
+        
+        image._detectHumanHandPoseResult(options: options, maximumHandCount: maximumHandCount) { _result_ in
+            
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let humanHandPoseObservations):
+                guard let humanHandPoseObservations = humanHandPoseObservations else { result(.failure(CustomError.isNull)); return }
+                result(.success(humanHandPoseObservations))
+            }
+        }
+    }
 }
 
 // MARK: - 公開函式 (人臉)
@@ -42,10 +90,7 @@ public extension WWFaceLandmarkDetection {
     func faceLandmarks(landmarkTypes: [FaceLandmarkRegion], result: @escaping (Result<[WWFaceLandmarkDetection.FeaturePoints], Error>) -> Void) {
         
         guard let detectImageView = detectImageView else { return result(.failure(CustomError.unsetting)) }
-        
-        boxLayers._removeFromSuperlayer()
-        boxLayers = []
-        
+                
         detectImageView._detectFaceLandmarksBox(landmarkTypes: landmarkTypes) { _result_ in
             
             switch _result_ {
@@ -69,7 +114,7 @@ public extension WWFaceLandmarkDetection {
             }
         }
     }
-        
+    
     /// 人臉特徵點標示
     /// - Parameters:
     ///   - landmarkTypes: 要標示的類型
@@ -82,8 +127,8 @@ public extension WWFaceLandmarkDetection {
         guard let overlayView = overlayView else { result?(.failure(CustomError.unsetting)); return }
         
         let this = self
-        overlayView.layer.sublayers?._removeFromSuperlayer()
         
+        clearOverlayView()
         faceLandmarks(landmarkTypes: landmarkTypes) { _result_ in
             
             switch _result_ {
@@ -98,7 +143,7 @@ public extension WWFaceLandmarkDetection {
 
 // MARK: - 公開函式 (手指頭)
 public extension WWFaceLandmarkDetection {
-    
+        
     /// 手指頭特徵點
     /// - Parameters:
     ///   - options: 用於描述影像的特定屬性
@@ -110,9 +155,6 @@ public extension WWFaceLandmarkDetection {
         guard let detectImageView = detectImageView else { result?(.failure(CustomError.unsetting)); return }
         
         let this = self
-        
-        boxLayers._removeFromSuperlayer()
-        boxLayers = []
         
         detectImageView._detectHumanHandPosePoints(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames) { _result_ in
             switch _result_ {
@@ -152,8 +194,8 @@ public extension WWFaceLandmarkDetection {
         guard let overlayView = overlayView else { result?(.failure(CustomError.unsetting)); return }
         
         let this = self
-        overlayView.layer.sublayers?._removeFromSuperlayer()
         
+        clearOverlayView()
         humanHandPosePoints(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames) { _result_ in
             switch _result_ {
             case .failure(let error): result?(.failure(error))
@@ -168,6 +210,31 @@ public extension WWFaceLandmarkDetection {
 
 // MARK: - 公開函式 (非同步)
 public extension WWFaceLandmarkDetection {
+    
+    /// 人臉特徵點原始分析值
+    /// - Parameters:
+    ///   - image: 待測圖片
+    ///   - options: 用於描述影像的特定屬性
+    /// - Returns: Result<[VNFaceObservation], Error>
+    func originalFaceLandmarks(image: UIImage, options: [VNImageOption : Any] = [:]) async -> Result<[VNFaceObservation], Error> {
+        
+        await withCheckedContinuation { continuation in
+            originalFaceLandmarks(image: image, options: options) { continuation.resume(returning: $0) }
+        }
+    }
+    
+    /// 手指頭特徵點原始分析值
+    /// - Parameters:
+    ///   - image: 待測圖片
+    ///   - options: 用於描述影像的特定屬性
+    ///   - maximumHandCount: 辨識幾隻手的數量
+    /// - Returns: Result<[VNHumanHandPoseObservation], Error>
+    func originalHumanHandPosePoints(image: UIImage, options: [VNImageOption : Any] = [:], maximumHandCount: Int = 2) async -> Result<[VNHumanHandPoseObservation], Error> {
+        
+        await withCheckedContinuation { continuation in
+            originalHumanHandPosePoints(image: image, options: options) { continuation.resume(returning: $0) }
+        }
+    }
     
     /// 人臉特徵點資訊
     /// - Parameters:
