@@ -59,5 +59,9 @@ final class ViewController: UIViewController {
         super.viewDidLayoutSubviews()
         WWFaceLandmarkDetection.shared.faceLandmarksBoxing(landmarkTypes: [.allPoints])
     }
+    
+    @IBAction func clean(_ sender: UIBarButtonItem) {
+        WWFaceLandmarkDetection.shared.clearOverlayView()
+    }
 }
 ```
