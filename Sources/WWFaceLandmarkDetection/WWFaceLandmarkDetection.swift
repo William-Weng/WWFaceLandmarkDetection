@@ -8,9 +8,12 @@
 import Vision
 import VisionKit
 import WWAutolayoutConstraint
+import AVFoundation
 
 // MARK: - 人臉特徵點偵測
 open class WWFaceLandmarkDetection {
+    
+    private class LandmarkShapeLayer: CAShapeLayer {}
     
     public static let shared = WWFaceLandmarkDetection()
     
@@ -208,6 +211,72 @@ public extension WWFaceLandmarkDetection {
     }
 }
 
+// MARK: - 公開函式 (影片)
+public extension WWFaceLandmarkDetection {
+        
+    /// 動態人臉位置
+    /// - Parameters:
+    ///   - sampleBuffer: 影片取像緩衝
+    ///   - previewLayer: 影片預覽畫面
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: 等比縮放圖片大小
+    ///   - result: Result<[CGRect], Error>
+    func faceLandmarksBoundingBox(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: WWFaceLandmarkDetection.SizeMark? = nil, result: @escaping ((Result<[CGRect], Error>) -> Void)) {
+        
+        guard let bufferImage = sampleBuffer._uiImage(scale: UIScreen.main.scale, orientation: orientation),
+              var normalizedImage = bufferImage._normalized()
+        else {
+            return result(.failure(CustomError.notImage))
+        }
+        
+        if let mark = mark { normalizedImage = normalizedImage._scaled(for: mark) }
+        
+        originalFaceLandmarks(image: normalizedImage, options: options) { _result_ in
+            
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let faces):
+                
+                guard !faces.isEmpty else { result(.success(.init())); return }
+                
+                let faceBoundingBoxOnScreens = faces.map { previewLayer.layerRectConverted(fromMetadataOutputRect: $0.boundingBox) }
+                result(.success(faceBoundingBoxOnScreens))
+            }
+        }
+    }
+    
+    /// 動態人臉標示
+    /// - Parameters:
+    ///   - sampleBuffer: 影片取像緩衝
+    ///   - previewLayer: 影片預覽畫面
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: 等比縮放圖片大小
+    ///   - strokeColor: 框線顏色
+    ///   - result: Result<Int, Error>
+    func faceLandmarksBoundingBoxing(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, strokeColor: UIColor = .green, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: WWFaceLandmarkDetection.SizeMark? = nil, result: @escaping ((Result<Int, Error>) -> Void)) {
+        
+        if let sublayers = previewLayer.sublayers {
+            sublayers.forEach { layer in Task { @MainActor in if layer is LandmarkShapeLayer { layer.removeFromSuperlayer() }}}
+        }
+        
+        faceLandmarksBoundingBox(sampleBuffer: sampleBuffer, previewLayer: previewLayer) { _result_ in
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let rects):
+                                
+                rects.forEach {
+                    let shapeLayer = LandmarkShapeLayer()._path(CGPath(rect: $0, transform: nil))._fillColor(.clear)._strokeColor(strokeColor)
+                    Task { @MainActor in previewLayer.addSublayer(shapeLayer) }
+                }
+                
+                result(.success(rects.count))
+            }
+        }
+    }
+}
+
 // MARK: - 公開函式 (非同步)
 public extension WWFaceLandmarkDetection {
     
@@ -307,6 +376,41 @@ public extension WWFaceLandmarkDetection {
         
         await withCheckedContinuation { continuation in
             humanHandPosePointsBoxing(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames, lineWidth: lineWidth, lineColor: lineColor) { continuation.resume(returning: $0) }
+        }
+    }
+}
+
+// MARK: - 公開函式 (非同步)
+extension WWFaceLandmarkDetection {
+    
+    /// 動態人臉位置
+    /// - Parameters:
+    ///   - sampleBuffer: 影片取像緩衝
+    ///   - previewLayer: 影片預覽畫面
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: 等比縮放圖片大小
+    /// - Returns: Result<[CGRect], Error>
+    func faceLandmarksBoundingBox(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: WWFaceLandmarkDetection.SizeMark? = nil) async -> Result<[CGRect], Error> {
+        
+        await withCheckedContinuation { continuation in
+            faceLandmarksBoundingBox(sampleBuffer: sampleBuffer, previewLayer: previewLayer, orientation: orientation, options: options, mark: mark) { continuation.resume(returning: $0) }
+        }
+    }
+    
+    /// 動態人臉標示
+    /// - Parameters:
+    ///   - sampleBuffer: 影片取像緩衝
+    ///   - previewLayer: 影片預覽畫面
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: 等比縮放圖片大小
+    ///   - strokeColor: 框線顏色
+    /// - Returns: Result<Int, Error>
+    func faceLandmarksBoundingBoxing(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, strokeColor: UIColor = .green, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: WWFaceLandmarkDetection.SizeMark?) async -> Result<Int, Error> {
+        
+        await withCheckedContinuation { continuation in
+            faceLandmarksBoundingBoxing(sampleBuffer: sampleBuffer, previewLayer: previewLayer, orientation: orientation, options: options, mark: mark) { continuation.resume(returning: $0) }
         }
     }
 }

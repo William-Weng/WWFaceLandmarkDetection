@@ -15,7 +15,7 @@ public extension WWFaceLandmarkDetection {
 
 // MARK: - enum
 public extension WWFaceLandmarkDetection {
-    
+        
     /// 自定義錯誤
     enum CustomError: Error {
         
@@ -23,6 +23,12 @@ public extension WWFaceLandmarkDetection {
         case notImage
         case isEmpty
         case isNull
+    }
+    
+    /// 尺寸的標示 (長寬)
+    enum SizeMark {
+        case width(_ number: CGFloat)
+        case height(_ number: CGFloat)
     }
     
     /// [臉上的特徵點部位範圍](https://developer.apple.com/documentation/vision/vnfacelandmarks2d)

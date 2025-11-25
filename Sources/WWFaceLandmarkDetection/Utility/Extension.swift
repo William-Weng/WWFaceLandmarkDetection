@@ -85,7 +85,85 @@ extension CALayer {
     func _center(_ center: CGPoint) -> Self { self.position = center; return self }
 }
 
+// MARK: - CAShapeLayer (function)
+extension CAShapeLayer {
+    
+    /// 設定路徑
+    /// - Parameter path: CGPath
+    /// - Returns: Self
+    func _path(_ path: CGPath) -> Self { self.path = path; return self }
+    
+    /// 設定填滿的顏色
+    /// - Parameter color: UIColor
+    /// - Returns: Self
+    func _fillColor(_ color: UIColor?) -> Self { self.fillColor = color?.cgColor; return self }
+
+    /// 設定框線的顏色
+    /// - Parameter color: UIColor
+    /// - Returns: Self
+    func _strokeColor(_ color: UIColor?) -> Self { self.strokeColor = color?.cgColor; return self }
+    
+    /// 設定框線寬度
+    /// - Parameter width: 框線寬度
+    /// - Returns: Self
+    func _lineWidth(_ width: CGFloat) -> Self { self.lineWidth = width; return self }
+    
+    /// 設定兩邊端點的樣子
+    /// - Parameter round: CAShapeLayerLineCap
+    /// - Returns: Self
+    func _lineCap(_ round: CAShapeLayerLineCap = .butt) -> Self { self.lineCap = round; return self }
+}
+
+// MARK: - CIImage (function)
+extension CIImage {
+    
+    /// [CIImage => CGImage](https://stackoverflow.com/questions/42997462/convert-cmsamplebuffer-to-uiimage)
+    /// - Parameter options: [CIContextOption : Any]
+    /// - Returns: CGImage?
+    func _cgImage(options: [CIContextOption : Any]? = nil) -> CGImage? {
+        return CIContext(options: options).createCGImage(self, from: self.extent)
+    }
+    
+    /// [CIImage => UIImage](https://stackoverflow.com/questions/42997462/convert-cmsamplebuffer-to-uiimage)
+    /// - Parameters:
+    ///   - scale: [CGFloat](https://blog.csdn.net/iTaacy/article/details/69258116)
+    ///   - orientation: [UIImage.Orientation](https://developer.apple.com/documentation/uikit/uiimage/1624147-cgimage)
+    /// - Returns: UIImage?
+    func _createUIImage(scale: CGFloat = 1.0, orientation: UIImage.Orientation = .right) -> UIImage? {
+        guard let cgImage = self._cgImage(options: nil) else { return nil }
+        return UIImage(cgImage: cgImage, scale: scale, orientation: orientation)
+    }
+}
+
 // MARK: - UIImage (function)
+extension UIImage {
+    
+    /// 修正圖片在Exif上的方向設定值
+    /// - 重畫一張
+    /// - Returns: UIImage?
+    func _normalized() -> UIImage? {
+        
+        guard imageOrientation != .up else { return self }
+        
+        let normalizedImage = _resized(for: size)
+        return normalizedImage
+    }
+    
+    /// 依照比例縮放圖片
+    /// - Parameters:
+    ///   - mark: 以寬度 / 高度為準
+    ///   - number: 要多寬 / 多高
+    /// - Returns: UIImage
+    func _scaled(for mark: WWFaceLandmarkDetection.SizeMark) -> UIImage {
+        
+        switch mark {
+        case .height(let number): return _scaled(toHeight: number)
+        case .width(let number): return _scaled(toWidth: number)
+        }
+    }
+}
+
+// MARK: - UIImage (private function)
 private extension UIImage {
     
     /// UIImage (圖片) => CGImage (點陣圖)
@@ -97,6 +175,28 @@ private extension UIImage {
     func _ciImage(options: [CIImageOption : Any]?) -> CIImage? {
         guard let cgImage = _cgImage() else { return nil }
         return CIImage(cgImage: cgImage, options: options)
+    }
+        
+    /// 依照比例縮放圖片 (以寬度為準)
+    /// - Parameter width: 寬度大小
+    /// - Returns: UIImage
+    func _scaled(toWidth width: CGFloat) -> UIImage {
+        
+        let newSize = _scaledSize(toWidth: width)
+        let newImage = _resized(for: newSize)
+        
+        return newImage
+    }
+    
+    /// 依照比例縮放圖片 (以高度為準)
+    /// - Parameter height: 高度大小
+    /// - Returns: UIImage
+    func _scaled(toHeight height: CGFloat) -> UIImage {
+        
+        let newSize = _scaledSize(toHeight: height)
+        let newImage = _resized(for: newSize)
+        
+        return newImage
     }
     
     /// 依照比例縮放圖片的尺寸 (以寬度為準)
@@ -119,6 +219,30 @@ private extension UIImage {
         let newSize = CGSize(width: size.width * scale, height: height)
         
         return newSize
+    }
+    
+    /// 改變圖片大小
+    /// - Returns: UIImage
+    /// - Parameters:
+    ///   - size: 要改變的尺寸
+    ///   - format: UIGraphicsImageRendererFormat
+    func _resized(for size: CGSize, format: UIGraphicsImageRendererFormat) -> UIImage {
+        
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        let resizeImage = renderer.image { (context) in draw(in: renderer.format.bounds) }
+        
+        return resizeImage
+    }
+    
+    /// 改變圖片大小
+    /// - Returns: UIImage
+    /// - Parameters:
+    ///   - size: 要改變的尺寸
+    ///   - scale: 對應的畫面比例 (Retina圖像)
+    func _resized(for size: CGSize, scale: CGFloat = UIScreen.main.scale) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        return _resized(for: size, format: format)
     }
 }
 
@@ -376,6 +500,28 @@ private extension UIImageView {
         return CGRect(origin: CGPoint._movePointWithSize(from: imageViewSize, to: newSize), size: newSize)
     }
 }
+
+// MARK: - CMSampleBuffer (function)
+extension CMSampleBuffer {
+    
+    /// [CMSampleBuffer => CIImage](https://rethunk.medium.com/cmsamplebuffer-to-uiimage-in-swift-5bf96d393d5e)
+    /// - [captureOutput(_:didOutput:from:)](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput)
+    /// - Returns: [CIImage?](https://developer.apple.com/documentation/coremedia/cmsamplebuffer-u71)
+    func _ciImage() -> CIImage? {
+        guard let imageBuffer = imageBuffer else { return nil }
+        return CIImage(cvImageBuffer: imageBuffer)
+    }
+    
+    /// [CMSampleBuffer => UIImage](https://www.itread01.com/content/1548295221.html)
+    /// - Parameters:
+    ///   - scale: [CGFloat](https://blog.csdn.net/iTaacy/article/details/69258116)
+    ///   - orientation: [UIImage.Orientation](https://developer.apple.com/documentation/uikit/uiimage/1624147-cgimage)
+    /// - Returns: [UIImage?](https://www.jianshu.com/p/b0e5f2944b3d)
+    func _uiImage(scale: CGFloat = 1.0, orientation: UIImage.Orientation = .up) -> UIImage? {
+        return self._ciImage()?._createUIImage(scale: scale, orientation: orientation)
+    }
+}
+
 
 // MARK: - VNFaceObservation (function)
 private extension VNFaceObservation {

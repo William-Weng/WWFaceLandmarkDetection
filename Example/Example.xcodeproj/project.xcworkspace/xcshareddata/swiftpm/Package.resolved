@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/William-Weng/WWAutolayoutConstraint",
       "state" : {
-        "revision" : "3efa698088862e5490b21ddea59250b54cf05d2f",
-        "version" : "0.6.1"
+        "revision" : "5bc412e8cde326aca88d20759c6d1cdbb199bb4d",
+        "version" : "0.7.0"
       }
     },
     {
