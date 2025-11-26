@@ -10,7 +10,7 @@
 ### [Installation with Swift Package Manager](https://medium.com/彼得潘的-swift-ios-app-開發問題解答集/使用-spm-安裝第三方套件-xcode-11-新功能-2c4ffcf85b4b)
 ```bash
 dependencies: [
-    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.2.0"))
+    .package(url: "https://github.com/William-Weng/WWFaceLandmarkDetection.git", .upToNextMajor(from: "1.2.1"))
 ]
 ```
 
@@ -42,8 +42,12 @@ dependencies: [
 |humanHandPosePointsBoxing(options:maximumHandCount:jointNames:lineWidth:lineColor:)|手指頭特徵點標示 (非同步)|
 |faceLandmarksBoundingBox(sampleBuffer:previewLayer:orientation:options:mark:result)|動態人臉位置|
 |faceLandmarksBoundingBox(sampleBuffer:previewLayer:orientation:options:mark:)|動態人臉位置 (非同步)|
-|faceLandmarksBoundingBoxing(sampleBuffer:previewLayer:orientation:options:mark:result)|動態人臉標示|
-|faceLandmarksBoundingBoxing(sampleBuffer:previewLayer:orientation:options:mark)|動態人臉標示 (非同步)|
+|faceLandmarksBoundingBoxing(sampleBuffer:previewLayer:strokeColor:orientation:options:mark:result)|動態人臉標示|
+|faceLandmarksBoundingBoxing(sampleBuffer:previewLayer:strokeColor:orientation:options:mark)|動態人臉標示 (非同步)|
+|humanHandPosePointsBoundingBox(sampleBuffer:previewLayer:orientation:options:mark:maximumHandCount:confidence:jointNames:result)|動態手指頭位置|
+|humanHandPosePointsBoundingBox(sampleBuffer:previewLayer:orientation:options:mark:maximumHandCount:confidence:jointNames:)|動態手指頭 (非同步)|
+|humanHandPosePointsBoundingBoxing(sampleBuffer:previewLayer:lineWidth:lineColor:orientation:options:mark:maximumHandCount:confidence:jointNames:result)|動態手指頭位置標示|
+|humanHandPosePointsBoundingBoxing(sampleBuffer:previewLayer:lineWidth:lineColor:orientation:options:mark:maximumHandCount:confidence:jointNames)|動態手指頭位置標示 (非同步)|
 
 ### Example
 ```swift

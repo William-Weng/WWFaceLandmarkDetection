@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/William-Weng/WWFaceLandmarkDetection",
       "state" : {
-        "revision" : "8e13b52a92d2530d0a77ea2d2e4c695d09bb2556",
-        "version" : "1.1.5"
+        "revision" : "2d7a31801e8535b610279611dc1b92b67ad3ac7c",
+        "version" : "1.2.0"
       }
     }
   ],

@@ -16,10 +16,11 @@
 		8134F0652ECEE4D2007F319A /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 8134F0642ECEE4D2007F319A /* WWFaceLandmarkDetection */; };
 		8134F0682ECEED3F007F319A /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 8134F0672ECEED3F007F319A /* WWFaceLandmarkDetection */; };
 		813BC5502ED5B6F00033E58B /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 813BC54F2ED5B6F00033E58B /* WWFaceLandmarkDetection */; };
-		813BC5532ED5B7420033E58B /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 813BC5522ED5B7420033E58B /* WWFaceLandmarkDetection */; };
 		81584A0A2ECDC3B20086CA57 /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 81584A092ECDC3B20086CA57 /* WWFaceLandmarkDetection */; };
 		81701F132ED589A800EB833B /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 81701F122ED589A800EB833B /* WWFaceLandmarkDetection */; };
 		8184BC332ECDCFF700002D23 /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 8184BC322ECDCFF700002D23 /* WWFaceLandmarkDetection */; };
+		81B7E3412ED68D9E00A59BEA /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 81B7E3402ED68D9E00A59BEA /* WWFaceLandmarkDetection */; };
+		81B7E3472ED6A05B00A59BEA /* WWFaceLandmarkDetection in Frameworks */ = {isa = PBXBuildFile; productRef = 81B7E3462ED6A05B00A59BEA /* WWFaceLandmarkDetection */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,12 +56,13 @@
 				81584A0A2ECDC3B20086CA57 /* WWFaceLandmarkDetection in Frameworks */,
 				8134F04D2ECEC023007F319A /* WWFaceLandmarkDetection in Frameworks */,
 				8134F0532ECEC102007F319A /* WWFaceLandmarkDetection in Frameworks */,
+				81B7E3472ED6A05B00A59BEA /* WWFaceLandmarkDetection in Frameworks */,
 				8134F05F2ECEDF49007F319A /* WWFaceLandmarkDetection in Frameworks */,
 				8184BC332ECDCFF700002D23 /* WWFaceLandmarkDetection in Frameworks */,
 				813BC5502ED5B6F00033E58B /* WWFaceLandmarkDetection in Frameworks */,
 				8134F0682ECEED3F007F319A /* WWFaceLandmarkDetection in Frameworks */,
 				8134F0652ECEE4D2007F319A /* WWFaceLandmarkDetection in Frameworks */,
-				813BC5532ED5B7420033E58B /* WWFaceLandmarkDetection in Frameworks */,
+				81B7E3412ED68D9E00A59BEA /* WWFaceLandmarkDetection in Frameworks */,
 				81348FCA2ECFF8020022B00B /* WWFaceLandmarkDetection in Frameworks */,
 				8134F04A2ECEA43F007F319A /* WWFaceLandmarkDetection in Frameworks */,
 				81701F132ED589A800EB833B /* WWFaceLandmarkDetection in Frameworks */,
@@ -119,7 +121,8 @@
 				81348FC92ECFF8020022B00B /* WWFaceLandmarkDetection */,
 				81701F122ED589A800EB833B /* WWFaceLandmarkDetection */,
 				813BC54F2ED5B6F00033E58B /* WWFaceLandmarkDetection */,
-				813BC5522ED5B7420033E58B /* WWFaceLandmarkDetection */,
+				81B7E3402ED68D9E00A59BEA /* WWFaceLandmarkDetection */,
+				81B7E3462ED6A05B00A59BEA /* WWFaceLandmarkDetection */,
 			);
 			productName = Example;
 			productReference = 817EE1FE2EB1FA050036B57C /* Example.app */;
@@ -150,7 +153,7 @@
 			mainGroup = 817EE1F52EB1FA050036B57C;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				813BC5512ED5B7420033E58B /* XCRemoteSwiftPackageReference "WWFaceLandmarkDetection" */,
+				81B7E3452ED6A05B00A59BEA /* XCRemoteSwiftPackageReference "WWFaceLandmarkDetection" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 817EE1FF2EB1FA050036B57C /* Products */;
@@ -396,12 +399,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		813BC5512ED5B7420033E58B /* XCRemoteSwiftPackageReference "WWFaceLandmarkDetection" */ = {
+		81B7E3452ED6A05B00A59BEA /* XCRemoteSwiftPackageReference "WWFaceLandmarkDetection" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/William-Weng/WWFaceLandmarkDetection";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.5;
+				minimumVersion = 1.2.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -443,11 +446,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = WWFaceLandmarkDetection;
 		};
-		813BC5522ED5B7420033E58B /* WWFaceLandmarkDetection */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 813BC5512ED5B7420033E58B /* XCRemoteSwiftPackageReference "WWFaceLandmarkDetection" */;
-			productName = WWFaceLandmarkDetection;
-		};
 		81584A092ECDC3B20086CA57 /* WWFaceLandmarkDetection */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = WWFaceLandmarkDetection;
@@ -458,6 +456,15 @@
 		};
 		8184BC322ECDCFF700002D23 /* WWFaceLandmarkDetection */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = WWFaceLandmarkDetection;
+		};
+		81B7E3402ED68D9E00A59BEA /* WWFaceLandmarkDetection */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WWFaceLandmarkDetection;
+		};
+		81B7E3462ED6A05B00A59BEA /* WWFaceLandmarkDetection */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81B7E3452ED6A05B00A59BEA /* XCRemoteSwiftPackageReference "WWFaceLandmarkDetection" */;
 			productName = WWFaceLandmarkDetection;
 		};
 /* End XCSwiftPackageProductDependency section */

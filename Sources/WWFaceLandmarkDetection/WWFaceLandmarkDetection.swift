@@ -21,6 +21,8 @@ open class WWFaceLandmarkDetection {
     
     private var detectImageView: UIImageView?
     private var boxLayers: [CALayer] = []
+    
+    deinit { overlayView = nil }
 }
 
 // MARK: - 公開函式 (設定)
@@ -85,7 +87,7 @@ public extension WWFaceLandmarkDetection {
 
 // MARK: - 公開函式 (人臉)
 public extension WWFaceLandmarkDetection {
-        
+    
     /// 人臉特徵點資訊
     /// - Parameters:
     ///   - landmarkTypes: 要偵測的類型
@@ -204,7 +206,7 @@ public extension WWFaceLandmarkDetection {
             case .failure(let error): result?(.failure(error))
             case .success(let pointsArray):
                 pointsArray.forEach({ points in
-                    points.forEach { this.drawHumanHand(on: overlayView, center: $0, lineWidth: lineWidth, lineColor: lineColor)}
+                    points.forEach { this.drawHumanHand(overlayView: overlayView, center: $0, lineWidth: lineWidth, lineColor: lineColor)}
                 })
             }
         }
@@ -248,30 +250,116 @@ public extension WWFaceLandmarkDetection {
     
     /// 動態人臉標示
     /// - Parameters:
-    ///   - sampleBuffer: 影片取像緩衝
-    ///   - previewLayer: 影片預覽畫面
-    ///   - orientation: 圖片方向
-    ///   - options: [VNImageOption : Any]
-    ///   - mark: 等比縮放圖片大小
-    ///   - strokeColor: 框線顏色
-    ///   - result: Result<Int, Error>
+    ///   - sampleBuffer: [影片取像緩衝](https://stackoverflow.com/questions/44698368/layerrectconvertedfrommetadataoutputrect-issue)
+    ///   - previewLayer: [影片預覽畫面](https://medium.com/onfido-tech/live-face-tracking-on-ios-using-vision-framework-adf8a1799233)
+    ///   - strokeColor: [框線顏色](https://developer.apple.com/forums/thread/127258)
+    ///   - orientation: [圖片方向](https://machinethink.net/blog/bounding-boxes/)
+    ///   - options: [[VNImageOption : Any]](https://www.jianshu.com/p/1eea8bf8451e)
+    ///   - mark: [等比縮放圖片大小](https://zonble.gitbooks.io/kkbox-ios-dev/content/memory_management_part_3/)
+    ///   - result: [Result<Int, Error>](https://www.jianshu.com/p/1eea8bf8451e))
     func faceLandmarksBoundingBoxing(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, strokeColor: UIColor = .green, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: WWFaceLandmarkDetection.SizeMark? = nil, result: @escaping ((Result<Int, Error>) -> Void)) {
         
         if let sublayers = previewLayer.sublayers {
             sublayers.forEach { layer in Task { @MainActor in if layer is LandmarkShapeLayer { layer.removeFromSuperlayer() }}}
         }
         
-        faceLandmarksBoundingBox(sampleBuffer: sampleBuffer, previewLayer: previewLayer) { _result_ in
+        faceLandmarksBoundingBox(sampleBuffer: sampleBuffer, previewLayer: previewLayer, orientation: orientation, options: options, mark: mark) { _result_ in
             switch _result_ {
             case .failure(let error): result(.failure(error))
             case .success(let rects):
-                                
+                
                 rects.forEach {
                     let shapeLayer = LandmarkShapeLayer()._path(CGPath(rect: $0, transform: nil))._fillColor(.clear)._strokeColor(strokeColor)
                     Task { @MainActor in previewLayer.addSublayer(shapeLayer) }
                 }
                 
                 result(.success(rects.count))
+            }
+        }
+    }
+    
+    /// 動態手指頭位置
+    /// - Parameters:
+    ///   - sampleBuffer: 影片取像緩衝
+    ///   - previewLayer: 影片預覽畫面
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: 等比縮放圖片大小
+    ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - confidence: 辨識度 / 正確率
+    ///   - jointNames: 辨識哪些部位
+    ///   - result: Result<[[CGPoint]], Error>
+    func humanHandPosePointsBoundingBox(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: SizeMark? = nil, maximumHandCount: Int = 2, confidence: VNConfidence = 0.9, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip], result: @escaping (Result<[[CGPoint]], Error>) -> ()) {
+        
+        guard let bufferImage = sampleBuffer._uiImage(scale: UIScreen.main.scale, orientation: orientation),
+              var normalizedImage = bufferImage._normalized()
+        else {
+            return result(.failure(CustomError.notImage))
+        }
+        
+        if let mark = mark { normalizedImage = normalizedImage._scaled(for: mark) }
+        
+        originalHumanHandPosePoints(image: normalizedImage, options: options, maximumHandCount: maximumHandCount) { _result_ in
+            
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let handPoses):
+                
+                var pointsArray: [[CGPoint]] = []
+                
+                handPoses.forEach { handPose in
+                    
+                    do {
+                        let originalPoints = try handPose._fingerPointBoxes(moreThan: confidence, jointNames: jointNames).get()
+                        let realPoints = originalPoints.map { previewLayer.layerPointConverted(fromCaptureDevicePoint: $0.location) }
+                        pointsArray.append(realPoints)
+                    } catch {
+                        result(.failure(error)); return
+                    }
+                }
+                
+                result(.success(pointsArray))
+            }
+        }
+    }
+    
+    /// [動態手指頭位置標示](https://www.jianshu.com/p/59b43dbe4fbd)
+    /// - Parameters:
+    ///   - sampleBuffer: [影片取像緩衝](https://qiita.com/john-rocky/items/29c2cf791051c7205302)
+    ///   - previewLayer: [影片預覽畫面](https://xie.infoq.cn/article/67c8cbee361ca22d54cc88412)
+    ///   - lineWidth: [線寬](https://www.appcoda.com.tw/ios-14-vision-framework-tinder-app/)
+    ///   - lineColor: [線顏色](https://shtnkgm.com/blog/2020-09-02-hand.html)
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: [等比縮放圖片大小]((https://shtnkgm.com/blog/2020-09-02-hand.html)
+    ///   - maximumHandCount: [辨識幾隻手的數量](https://www.raywenderlich.com/19454476-vision-tutorial-for-ios-detect-body-and-hand-pose)
+    ///   - confidence: 辨識度 / 正確率
+    ///   - jointNames: 辨識哪些部位
+    ///   - result: Result<Int, Error>
+    func humanHandPosePointsBoundingBoxing(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, lineWidth: CGFloat = 8.0, lineColor: UIColor = .green, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: SizeMark? = nil, maximumHandCount: Int = 2, confidence: VNConfidence = 0.9, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip], result: @escaping (Result<Int, Error>) -> ()) {
+        
+        if let sublayers = previewLayer.sublayers {
+            sublayers.forEach { layer in Task { @MainActor in if layer is LandmarkShapeLayer { layer.removeFromSuperlayer() }}}
+        }
+        
+        let this = self
+        
+        humanHandPosePointsBoundingBox(sampleBuffer: sampleBuffer, previewLayer: previewLayer, orientation: orientation, options: options, mark: mark, maximumHandCount: maximumHandCount, confidence: confidence, jointNames: jointNames) { _result_ in
+            
+            switch _result_ {
+            case .failure(let error): result(.failure(error))
+            case .success(let centersArray):
+                
+                var count = 0
+                
+                centersArray.forEach({ centers in
+                    count += centers.count
+                    centers.forEach { center in
+                        Task { @MainActor in this.drawHumanHand(previewLayer: previewLayer, center: center, lineWidth: lineWidth, lineColor: lineColor) }
+                    }
+                })
+                
+                result(.success(count))
             }
         }
     }
@@ -378,6 +466,47 @@ public extension WWFaceLandmarkDetection {
             humanHandPosePointsBoxing(options: options, maximumHandCount: maximumHandCount, jointNames: jointNames, lineWidth: lineWidth, lineColor: lineColor) { continuation.resume(returning: $0) }
         }
     }
+    
+    /// 動態手指頭位置
+    /// - Parameters:
+    ///   - sampleBuffer: 影片取像緩衝
+    ///   - previewLayer: 影片預覽畫面
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: 等比縮放圖片大小
+    ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - confidence: 辨識度 / 正確率
+    ///   - jointNames: 辨識哪些部位
+    /// - Returns: Result<[[CGPoint]], Error>
+    func humanHandPosePointsBoundingBox(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: SizeMark? = nil, maximumHandCount: Int = 2, confidence: VNConfidence = 0.9, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip]) async -> Result<[[CGPoint]], Error> {
+        
+        await withCheckedContinuation { continuation in
+            humanHandPosePointsBoundingBox(sampleBuffer: sampleBuffer, previewLayer: previewLayer, orientation: orientation, options: options, mark: mark, confidence: confidence, jointNames: jointNames) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+    
+    /// 動態手指頭位置
+    /// - Parameters:
+    ///   - sampleBuffer: 影片取像緩衝
+    ///   - previewLayer: 影片預覽畫面
+    ///   - lineWidth: 線寬
+    ///   - lineColor: 線顏色
+    ///   - orientation: 圖片方向
+    ///   - options: [VNImageOption : Any]
+    ///   - mark: 等比縮放圖片大小
+    ///   - maximumHandCount: 辨識幾隻手的數量
+    ///   - confidence: 辨識度 / 正確率
+    ///   - jointNames: 辨識哪些部位    /// - Returns: Result<Int, Error>
+    func humanHandPosePointsBoundingBoxing(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, lineWidth: CGFloat = 8.0, lineColor: UIColor = .green, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: SizeMark? = nil, maximumHandCount: Int = 2, confidence: VNConfidence = 0.9, jointNames: [VNHumanHandPoseObservation.JointName] = [.thumbTip, .indexTip, .middleTip, .ringTip, .littleTip]) async -> Result<Int, Error> {
+        
+        await withCheckedContinuation { continuation in
+            humanHandPosePointsBoundingBoxing(sampleBuffer: sampleBuffer, previewLayer: previewLayer, lineWidth: lineWidth, lineColor: lineColor, orientation: orientation, mark: mark, maximumHandCount: maximumHandCount, confidence: confidence, jointNames: jointNames) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
 }
 
 // MARK: - 公開函式 (非同步)
@@ -402,15 +531,15 @@ extension WWFaceLandmarkDetection {
     /// - Parameters:
     ///   - sampleBuffer: 影片取像緩衝
     ///   - previewLayer: 影片預覽畫面
+    ///   - strokeColor: 框線顏色
     ///   - orientation: 圖片方向
     ///   - options: [VNImageOption : Any]
     ///   - mark: 等比縮放圖片大小
-    ///   - strokeColor: 框線顏色
     /// - Returns: Result<Int, Error>
     func faceLandmarksBoundingBoxing(sampleBuffer: CMSampleBuffer, previewLayer: AVCaptureVideoPreviewLayer, strokeColor: UIColor = .green, orientation: UIImage.Orientation = .downMirrored, options: [VNImageOption : Any] = [:], mark: WWFaceLandmarkDetection.SizeMark?) async -> Result<Int, Error> {
         
         await withCheckedContinuation { continuation in
-            faceLandmarksBoundingBoxing(sampleBuffer: sampleBuffer, previewLayer: previewLayer, orientation: orientation, options: options, mark: mark) { continuation.resume(returning: $0) }
+            faceLandmarksBoundingBoxing(sampleBuffer: sampleBuffer, previewLayer: previewLayer, strokeColor: strokeColor, orientation: orientation, options: options, mark: mark) { continuation.resume(returning: $0) }
         }
     }
 }
@@ -450,12 +579,30 @@ private extension WWFaceLandmarkDetection {
     }
     
     /// 畫出手指頭方框
-    /// - Parameter center: CGPoint
-    func drawHumanHand(on overlayView: UIView, center: CGPoint, lineWidth: CGFloat, lineColor: UIColor) {
+    /// - Parameters:
+    ///   - overlayView: UIView
+    ///   - center: 中點
+    ///   - lineWidth: 線寬
+    ///   - lineColor: 線顏色
+    func drawHumanHand(overlayView: UIView, center: CGPoint, lineWidth: CGFloat, lineColor: UIColor) {
         
         let frame = CGRect(origin: .zero, size: CGSize(width: lineWidth, height: lineWidth))
         let layer = CALayer()._frame(frame)._borderColor(lineColor)._borderWidth(lineWidth)._center(center)
         
         overlayView.layer.addSublayer(layer)
+    }
+    
+    /// 畫出手指頭方框 (動態)
+    /// - Parameters:
+    ///   - previewLayer: CALayer
+    ///   - center: 中點
+    ///   - lineWidth: 線寬
+    ///   - lineColor: 線顏色
+    func drawHumanHand(previewLayer: CALayer, center: CGPoint, lineWidth: CGFloat, lineColor: UIColor){
+        
+        let frame = CGRect(origin: .zero, size: CGSize(width: lineWidth, height: lineWidth))
+        let layer = LandmarkShapeLayer()._frame(frame)._borderColor(.green)._borderWidth(lineWidth)._center(center)
+        
+        previewLayer.addSublayer(layer)
     }
 }

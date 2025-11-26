@@ -605,7 +605,7 @@ private extension VNFaceLandmarkRegion2D {
 }
 
 // MARK: - VNHumanHandPoseObservation
-private extension VNHumanHandPoseObservation {
+public extension VNHumanHandPoseObservation {
     
     /// [計算出辨識出該部位手指頭位置](https://www.jianshu.com/p/9c4f91e99343)
     /// - Parameters:
@@ -639,3 +639,4 @@ private extension VNRecognizedPoint {
         return point
     }
 }
+
